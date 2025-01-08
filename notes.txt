@@ -1,0 +1,24 @@
+client-db:
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Admin2025*
+    ports:
+      - 1433:1433
+    image: mcr.microsoft.com/mssql/server:2022-latest
+
+  dw-database:
+    image: postgres
+    environment:
+      POSTGRES_USER: dw
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: db
+    volumes:
+      - dw-databases:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "dw"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+    restart: always

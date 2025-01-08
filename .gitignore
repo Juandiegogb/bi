@@ -3,3 +3,5 @@
 /logs
 /plugins
 .env
+.mypy__cache__
+**/__pycache__/
