@@ -152,7 +152,7 @@ services:
       start_period: 30s
     restart: always
     networks:
-      airflow_net:
+      airflow-net:
         ipv4_address: 192.168.1.100
 
     depends_on:
