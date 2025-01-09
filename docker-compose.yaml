@@ -57,7 +57,7 @@ x-airflow-common: &airflow-common
     AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
     AIRFLOW__CORE__FERNET_KEY: ""
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
-    AIRFLOW__CORE__LOAD_EXAMPLES: "true"
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
     AIRFLOW__API__AUTH_BACKENDS: "airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session"
     # yamllint disable rule:line-length
     # Use simple http server on scheduler for health checks
@@ -66,7 +66,8 @@ x-airflow-common: &airflow-common
     AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: "true"
     # WARNING: Use _PIP_ADDITIONAL_REQUIREMENTS option ONLY for a quick checks
     # for other purpose (development, test and especially production usage) build/extend Airflow image.
-    _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:- apache-airflow-providers-microsoft-mssql}
+    _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:- apache-airflow-providers-microsoft-mssql }
+
     # The following line can be used to set a custom config file, stored in the local config folder
     # If you want to use it, outcomment it and replace airflow.cfg with the name of your config file
     # AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg'
@@ -90,6 +91,7 @@ services:
     ports:
       - 1433:1433
     image: mcr.microsoft.com/mssql/server:2022-latest
+    restart: always
 
   dw-database:
     image: postgres
@@ -141,7 +143,7 @@ services:
     <<: *airflow-common
     command: webserver
     ports:
-      - "8080:8080"
+      - "80:8080"
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
       interval: 30s
@@ -313,3 +315,13 @@ services:
 volumes:
   postgres-db-volume:
   dw-databases:
+
+networks:
+  airflow-net:
+    driver: macvlan
+    driver_opts:
+      parent: enp2s0
+    ipam:
+      config:
+        - subnet: 192.168.1.1/24
+          gateway: 192.168.1.1
