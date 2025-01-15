@@ -27,5 +27,5 @@ total_time = round((ended_at - started_at) / 60, 2)
 schema = StructType([StructField("time", DoubleType(), True)])
 time_df = spark.createDataFrame([(total_time,)], schema)
 
-time_df.write.mode("append").jdbc(pg_url, "time_stats", properties=pg_properties)
+time_df.write.mode("overwrite").jdbc(pg_url, "time_stats", properties=pg_properties)
 print("Stats table loaded to stage")
