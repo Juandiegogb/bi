@@ -10,8 +10,6 @@ from config import  pg
 started_at = time()
 spark: SparkSession = (
     SparkSession.builder.appName("ETL")
-    .config("spark.executor.cores", "4")
-    .config("spark.executor.memory", "4g")
     .getOrCreate()
 )
 
