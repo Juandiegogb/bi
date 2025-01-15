@@ -5,3 +5,4 @@
 .env
 .mypy__cache__
 **/__pycache__/
+*.csv

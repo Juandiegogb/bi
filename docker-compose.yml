@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  client-db:
+    container_name: mssql
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Admin2025*
+    ports:
+      - 1433:1433
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    restart: always
+
+
+  dw-database:
+    image: postgres
+    container_name: pg
+    environment:
+      POSTGRES_USER: dw
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: db
+    volumes:
+      - dw-databases:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    restart: always
+
+
+volumes:
+  dw-databases:
