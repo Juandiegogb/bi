@@ -5,6 +5,7 @@ Esta es una ETL con Python y Pyspark
 
 from pyspark.sql import SparkSession
 from config import mssql, pg
+from pyspark.sql.types import StructType, StructField, StringType, LongType
 
 
 
@@ -45,10 +46,16 @@ total_rows = df.count()
 
 
 
+stats_schema = StructType([
+    StructField("stat", StringType(), True),
+    StructField("value", LongType(), True),
+])
 
-stats_columns = ["stat", "value"]
-stats_data = [("rows" , df.count())]
+# Crear el DataFrame con el esquema
+stats_data = [("rows", df.count())]
+stats_df = spark.createDataFrame(stats_data, stats_schema)
 
+stats_df.show()
+df.show()
 
-
-df.write.mode("overwrite").jdbc(pg_url, table="stats", properties=pg_properties)
+stats_df.write.mode("overwrite").jdbc(pg_url, table="stats", properties=pg_properties)
