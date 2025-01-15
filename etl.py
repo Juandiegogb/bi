@@ -5,6 +5,7 @@ Esta es una ETL con Python y Pyspark
 from time import time
 from pyspark.sql import SparkSession, DataFrame
 from config import mssql, pg
+from pyspark.sql.types import StructType, StructField, DoubleType
 
 started_at = time()
 
@@ -76,7 +77,12 @@ stats_df.write.mode("overwrite").jdbc(pg_url, table="stats", properties=pg_prope
 print("Stats table loaded to stage")
 
 ended_at = time()
-total_time = (ended_at - started_at)/60
+total_time = round((ended_at - started_at)/60,2)
+
+schema = StructType([StructField("time", DoubleType(), True)])
+time_df = spark.createDataFrame([(total_time,)], schema)
+
+time_df.write.mode("append").jdbc(pg_url,"time_stats" , properties=pg_properties)
 
 print(f"This job took {total_time:.2f} seconds and processed {total_rows} rows")
 
