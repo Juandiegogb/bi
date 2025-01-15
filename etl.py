@@ -1,6 +1,10 @@
+"""
+Esta es una ETL con Python y Pyspark
+"""
+
+from time import time
 from pyspark.sql import SparkSession, DataFrame
 from config import mssql, pg
-from time import time
 
 started_at = time()
 
@@ -35,20 +39,26 @@ pg_properties: dict = {
 
 
 print("Extracting data from DB")
+extration_time = time()
 df: DataFrame = spark.read.jdbc(
     mssql_url, "behavior_october", properties=mssql_properties
 )
 
+extration_time =  (time() - extration_time)/60
+print(f"The extration of the data took {extration_time}")
+
+
+transformation_time = time()
+
 total_rows = df.count()
-
-
 brands = df.select("brand").distinct().count()
 users = df.select("user_id").distinct().count()
 products = df.select("product_id").distinct().count()
 views = df.filter(df["event_type"] == "view").count()
 rows = df.count()
 
-
+transformation_time = (time() - transformation_time)/60
+print(f"The transformation of the data took{transformation_time}")
 
 stats_columns = ["stat", "value"]
 stats_data = [
@@ -66,6 +76,8 @@ stats_df.write.mode("overwrite").jdbc(pg_url, table="stats", properties=pg_prope
 print("Stats table loaded to stage")
 
 ended_at = time()
-total_time = ended_at - started_at
+total_time = (ended_at - started_at)/60
 
-print(f"This job took {round(total_time / 60)} minutes and processed {total_rows} rows")
+print(f"This job took {total_time:.2f} seconds and processed {total_rows} rows")
+
+
