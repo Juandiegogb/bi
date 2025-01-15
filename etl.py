@@ -32,30 +32,28 @@ pg_properties: dict = {
 }
 
 
+
+query = "(SELECT TOP 100 * FROM behavior_october) AS temp_table"
+
 df = spark.read.jdbc(
-    mssql_url, "behavior_october", properties=mssql_properties
+    mssql_url, table=query, properties=mssql_properties
 )
 
 
 
 total_rows = df.count()
-brands = df.select("brand").distinct().count()
-users = df.select("user_id").distinct().count()
-products = df.select("product_id").distinct().count()
-views = df.filter(df["event_type"] == "view").count()
-rows = df.count()
+
 
 
 
 stats_columns = ["stat", "value"]
-stats_data = [
-    ("brands quantity", brands),
-    ("users", users),
-    ("products", products),
-    ("total views", views),
-    ("total rows", rows),
-]
+stats_data = [("rows" , df.count())]
+
+
 
 stats_df = spark.createDataFrame(stats_data, stats_columns)
-stats_df.write.mode("overwrite").jdbc(pg_url, table="stats", properties=pg_properties)
 
+df.show()
+stats_df.show()
+
+stats_df.write.mode("overwrite").jdbc(pg_url, table="stats", properties=pg_properties)
