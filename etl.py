@@ -51,9 +51,4 @@ stats_data = [("rows" , df.count())]
 
 
 
-stats_df = spark.createDataFrame(stats_data, stats_columns)
-
-df.show()
-stats_df.show()
-
-stats_df.write.mode("overwrite").jdbc(pg_url, table="stats", properties=pg_properties)
+df.write.mode("overwrite").jdbc(pg_url, table="stats", properties=pg_properties)
