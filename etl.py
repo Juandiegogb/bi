@@ -46,16 +46,16 @@ total_rows = df.count()
 
 
 
-stats_schema = StructType([
-    StructField("stat", StringType(), True),
-    StructField("value", LongType(), True),
-])
+# Crear un RDD a partir de los datos
+stats_rdd = spark.sparkContext.parallelize([("rows", df.count())])
 
-# Crear el DataFrame con el esquema
-stats_data = [("rows", df.count())]
-stats_df = spark.createDataFrame(stats_data, stats_schema)
+# Convertir el RDD en un DataFrame
+stats_columns = ["stat", "value"]
+stats_df = stats_rdd.toDF(stats_columns)
 
+# Mostrar el DataFrame
 stats_df.show()
+
 df.show()
 
 stats_df.write.mode("overwrite").jdbc(pg_url, table="stats", properties=pg_properties)
